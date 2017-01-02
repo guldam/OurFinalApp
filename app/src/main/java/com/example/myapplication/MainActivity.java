@@ -27,10 +27,12 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphRequestBatch;
 import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions(Arrays.asList("public_profile", "email"));
+        loginButton.setReadPermissions(Arrays.asList("public_profile", "email", "user_friends"));
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -70,6 +72,27 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
                         Log.v("result",object.toString());
+                        try {
+                            String user_id = object.getString("id");
+                            Log.d("test", "****************************************** " + user_id);
+
+                            new GraphRequest(
+                                    AccessToken.getCurrentAccessToken(),
+                                    "/" + user_id + "/taggable_friends?limit=30",
+                                    null,
+                                    HttpMethod.GET,
+                                    new GraphRequest.Callback() {
+                                        public void onCompleted(GraphResponse response) {
+                                            Log.d("RESPONSE", "********************************* friend list reponse : " + response.toString());
+                                        }
+                                    }
+                            ).executeAsync();
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
 
@@ -78,7 +101,10 @@ public class MainActivity extends AppCompatActivity {
                 graphRequest.setParameters(parameters);
                 graphRequest.executeAsync();
 
-                GraphRequestBatch batch = new GraphRequestBatch(
+                //////////////////////////////////////////////////////////////
+
+
+                /*GraphRequestBatch batch = new GraphRequestBatch(
                         GraphRequest.newMeRequest(
                                 AccessToken.getCurrentAccessToken(),
                                 new GraphRequest.GraphJSONObjectCallback() {
@@ -111,18 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         // Application code for when the batch finishes
                     }
                 });
-                batch.executeAsync();
-
-
-
-
-
-
-
-
-
-
-
+                batch.executeAsync();*/
 
             }
 
