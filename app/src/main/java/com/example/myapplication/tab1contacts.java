@@ -206,7 +206,7 @@ public class tab1contacts extends Fragment{
                 }
                 return;
             }
-            // other 'case' lines to check for o
+            // other 'case' lines to check fo
             // permissions this app might request
         }
     }
