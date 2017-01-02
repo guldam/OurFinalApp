@@ -37,6 +37,8 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,13 +80,20 @@ public class MainActivity extends AppCompatActivity {
 
                             new GraphRequest(
                                     AccessToken.getCurrentAccessToken(),
-                                    "/" + user_id + "/taggable_friends?limit=30",
+                                    "/" + user_id + "/taggable_friends?limit=5",
                                     null,
                                     HttpMethod.GET,
                                     new GraphRequest.Callback() {
                                         public void onCompleted(GraphResponse response) {
                                             Log.d("RESPONSE", "********************************* friend list reponse : " + response.toString());
-                                        }
+
+                                         /*   try{ FileWriter file = new FileWriter("C:\\MyAndroidApp-f6bc6f4074f0387b570290f4d81fbe5239d1e850\\app\\src\\main\\assets\\test.json");
+                                                file.write(   response.toString()     );
+                                                file.flush();
+                                                file.close();
+                                        } catch (java.io.IOException e) {
+                                                e.printStackTrace();
+                                            */}
                                     }
                             ).executeAsync();
 
