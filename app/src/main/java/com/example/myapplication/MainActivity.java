@@ -1,44 +1,18 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphRequestBatch;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Arrays;
-
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private ViewPager mViewPager;
-    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,101 +37,7 @@ public class MainActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_main);
 
-        callbackManager = CallbackManager.Factory.create();
-        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions(Arrays.asList("public_profile", "email", "user_friends"));
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                GraphRequest graphRequest = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        Log.v("result",object.toString());
-                        try {
-                            String user_id = object.getString("id");
-                            Log.d("test", "****************************************** " + user_id);
 
-                            new GraphRequest(
-                                    AccessToken.getCurrentAccessToken(),
-                                    "/" + user_id + "/taggable_friends?limit=5",
-                                    null,
-                                    HttpMethod.GET,
-                                    new GraphRequest.Callback() {
-                                        public void onCompleted(GraphResponse response) {
-                                            Log.d("RESPONSE", "********************************* friend list reponse : " + response.toString());
-
-                                         /*   try{ FileWriter file = new FileWriter("C:\\MyAndroidApp-f6bc6f4074f0387b570290f4d81fbe5239d1e850\\app\\src\\main\\assets\\test.json");
-                                                file.write(   response.toString()     );
-                                                file.flush();
-                                                file.close();
-                                        } catch (java.io.IOException e) {
-                                                e.printStackTrace();
-                                            */}
-                                    }
-                            ).executeAsync();
-
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,email,gender,birthday");
-                graphRequest.setParameters(parameters);
-                graphRequest.executeAsync();
-
-                //////////////////////////////////////////////////////////////
-
-
-                /*GraphRequestBatch batch = new GraphRequestBatch(
-                        GraphRequest.newMeRequest(
-                                AccessToken.getCurrentAccessToken(),
-                                new GraphRequest.GraphJSONObjectCallback() {
-                                    @Override
-                                    public void onCompleted(
-                                            JSONObject jsonObject,
-                                            GraphResponse response) {
-                                        // Application code for user
-                                    }
-                                }),
-                        GraphRequest.newMyFriendsRequest(
-                                AccessToken.getCurrentAccessToken(),
-                                new GraphRequest.GraphJSONArrayCallback() {
-                                    @Override
-                                    public void onCompleted(
-                                            JSONArray jsonArray,
-                                            GraphResponse response) {
-                                        JSONObject object = response.getJSONObject();
-                                        JSONObject summary = object.optJSONObject("summary");
-                                        Log.d("summary",summary.optString("total_count"));
-                                        JSONArray listFriends = object.optJSONArray("data");
-                                        Log.d("ListFriends", listFriends.length()+"");
-
-                                    }
-                                })
-                );
-                batch.addCallback(new GraphRequestBatch.Callback() {
-                    @Override
-                    public void onBatchCompleted(GraphRequestBatch graphRequests) {
-                        // Application code for when the batch finishes
-                    }
-                });
-                batch.executeAsync();*/
-
-            }
-
-            @Override
-            public void onCancel() {
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.e("LoginErr",error.toString());
-            }
-        });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -173,26 +52,7 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-
     }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-    }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -219,6 +79,14 @@ public class MainActivity extends AppCompatActivity {
     // deleted PlaceholderFragment class from here
 
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //Fragment fragment = getFragmentManager().findFragmentById(R.id.tab1contacts);
+        //getFragmentManager().findFragmentById(R.id.tab1contacts).onActivityResult(requestCode, resultCode, data);
+        ((tab1contacts)mSectionsPagerAdapter.fragments[0]).callbackManager.onActivityResult(requestCode, resultCode, data);
+
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -226,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+        Fragment[] fragments=new Fragment[3];
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -235,8 +104,7 @@ public class MainActivity extends AppCompatActivity {
             //returning the current tabs
             switch (position) {
                 case 0:
-                    tab1contacts tab1 = new tab1contacts();
-                    return tab1;
+                    return fragments[0]=tab1contacts.newInstance();
                 case 1:
                     tab2chat tab2 = new tab2chat();
                     return tab2;
