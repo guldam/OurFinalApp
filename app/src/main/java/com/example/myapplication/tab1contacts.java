@@ -30,8 +30,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -62,6 +60,47 @@ public class tab1contacts extends Fragment{
 
         // data procesing ////
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
+        else{
+
+            AddrBean bean;
+            Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+            String [] ad = new String[] {
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                    ContactsContract.CommonDataKinds.Phone.NUMBER
+            };
+            Cursor cursor = getContext().getContentResolver().query(uri, ad, null, null, null);
+            /*cursor.moveToFirst();*/
+            if(cursor.getCount()>0){
+                Log.d("TEST", "********************************** get contacts!");
+                while (cursor.moveToNext()){
+                    String name = cursor.getString(cursor.getColumnIndex(
+                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME ));
+                    Log.d("TEST", "********************************** name : " + name);
+                    String number = cursor.getString(cursor.getColumnIndex(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER  ));
+                    Log.d("TEST", "********************************** number : " + number);
+
+                    JSONObject obj=new JSONObject();
+
+                    try {
+                        obj.put("name", name);
+                        obj.put("number", number);
+                    }catch(org.json.JSONException e){
+                        e.printStackTrace();
+                    }
+
+                    forSubmit.put(obj);
+                    bean = new AddrBean();
+                    bean.setName(name);
+                    bean.setNumber(number);
+                    contacts_name_number.add(bean);
+                }
+            } cursor.close();
+        }
+
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) rootView.findViewById(R.id.login_button);
         loginButton.setReadPermissions(Arrays.asList("public_profile", "email", "user_friends"));
@@ -74,51 +113,6 @@ public class tab1contacts extends Fragment{
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
                         Log.v("result",object.toString());
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
-                        }
-                        else{
-
-                            AddrBean bean;
-                            /*ArrayList<AddrBean> list = new ArrayList<>();*/
-                            Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-                            String [] ad = new String[] {
-                                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                                    ContactsContract.CommonDataKinds.Phone.NUMBER
-                            };
-                            Cursor cursor = getContext().getContentResolver().query(uri, ad, null, null, null);
-                            cursor.moveToFirst();
-                            if(cursor.getCount()>0){
-                                Log.d("TEST", "********************************** get contacts!");
-                                while (cursor.moveToNext()){
-                                    String name = cursor.getString(cursor.getColumnIndex(
-                                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME ));
-                                    Log.d("TEST", "********************************** name : " + name);
-                                    String number = cursor.getString(cursor.getColumnIndex(
-                                            ContactsContract.CommonDataKinds.Phone.NUMBER  ));
-                                    Log.d("TEST", "********************************** number : " + number);
-
-                                    JSONObject obj=new JSONObject();
-
-                                    try {
-                                        obj.put("name", name);
-                                        obj.put("number", number);
-                                    }catch(org.json.JSONException e){
-                                        e.printStackTrace();
-                                    }
-
-                                    forSubmit.put(obj);
-                                    bean = new AddrBean();
-                                    bean.setName(name);
-                                    bean.setNumber(number);
-                                    contacts_name_number.add(bean);
-                                    /*list.add(bean);*/
-                                }
-                                /*contacts_name_number = list;*/
-                            } cursor.close();
-                        }
-
                         try {
                             JSONObject obj;
                             JSONArray arr;
@@ -163,16 +157,16 @@ public class tab1contacts extends Fragment{
                                                     forSubmit.put(object2);
                                                     contacts_name_number.add(b);
                                                 }
-                                                System.out.println(contacts_name_number.get(1).getName());
+                                                PhoneNumberAdapter adapter2 = new PhoneNumberAdapter (getLayoutInflater(null), contacts_name_number);
+                                                listview.setAdapter(adapter2);
+                                                adapter2.notifyDataSetChanged();
+
                                             }catch(org.json.JSONException e){
                                                 e.printStackTrace();
                                             }
                                         }
                                     }
                             ).executeAsync();
-
-
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -187,7 +181,6 @@ public class tab1contacts extends Fragment{
                 PhoneNumberAdapter adapter2 = new PhoneNumberAdapter (getLayoutInflater(null), contacts_name_number);
                 listview.setAdapter(adapter2);
 
-
             }
 
             @Override
@@ -200,43 +193,7 @@ public class tab1contacts extends Fragment{
             }
         });
 
-        System.out.println(rootView);
         return rootView;
-    }
-
-
-
-    public String loadJSONFromAsset() {
-        String json = null;
-        try {
-
-            InputStream is = getActivity().getAssets().open("hotel.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-    }
-
-    void doJSONParser()  {
-        try {
-            JSONArray obj = new JSONArray( loadJSONFromAsset() );
-
-            for (int i = 0; i < obj.length(); i++) {
-
-                JSONObject jObject = obj.getJSONObject(i);
-                String name = jObject.getString("name");
-                String number = jObject.getString("number");
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -285,9 +242,9 @@ public class tab1contacts extends Fragment{
                             bean = new AddrBean();
                             bean.setName(name);
                             bean.setNumber(number);
-                            list.add(bean);
+                            contacts_name_number.add(bean);
                         }
-                        contacts_name_number = list;
+
                     } cursor.close();
                 }
                 else {
