@@ -4,6 +4,8 @@
     package="com.example.myapplication">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 
     <application
         android:allowBackup="true"
@@ -38,12 +40,4 @@
 
     </application>
 
-   <!-- <com.facebook.login.widget.LoginButton
-        android:layout_below="@+id/label"
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp" />-->
 </manifest>

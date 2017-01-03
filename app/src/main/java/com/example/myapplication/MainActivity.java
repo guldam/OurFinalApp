@@ -121,11 +121,11 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Contacts";
+                    return "PhoneNumber";
                 case 1:
-                    return "Chat";
+                    return "Gallery";
                 case 2:
-                    return "Online";
+                    return "Free";
             }
             return null;
         }

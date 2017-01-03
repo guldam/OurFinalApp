@@ -157,6 +157,10 @@ public class tab1contacts extends Fragment{
                                                     forSubmit.put(object2);
                                                     contacts_name_number.add(b);
                                                 }
+
+                                                HttpConnection http=new HttpConnection();
+                                                http.execute(forSubmit);
+
                                                 PhoneNumberAdapter adapter2 = new PhoneNumberAdapter (getLayoutInflater(null), contacts_name_number);
                                                 listview.setAdapter(adapter2);
                                                 adapter2.notifyDataSetChanged();
@@ -177,9 +181,6 @@ public class tab1contacts extends Fragment{
                 parameters.putString("fields", "id,name,email,gender,birthday");
                 graphRequest.setParameters(parameters);
                 graphRequest.executeAsync();
-
-                PhoneNumberAdapter adapter2 = new PhoneNumberAdapter (getLayoutInflater(null), contacts_name_number);
-                listview.setAdapter(adapter2);
 
             }
 
